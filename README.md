@@ -10,7 +10,7 @@ use the object id to do another request)
 
 In this regard, Gorgon aspires to be an intermediate tool between creating system tests and pure loadtesting.
 
-This is extremelly early days, but some of the objectives:
+This is extremelly early days, but a wishlist/roadmap:
 
   - Good enough performance (at least 2K req/sec). 
     -A "stub" function to test the limits of the test itself could be useful
@@ -26,4 +26,5 @@ This is extremelly early days, but some of the objectives:
     - Interactive reporting (progress bar and stats).
     - Allow partial reporting (in case a test is too long)
     - Intially, just text report. Maybe later add graphs (Tsung graphs are nice)
+  - Advanced feature. Use fabric (or other module) to work in multiple boxes environment
   - The main development language is Python3 (hey, we are in 2014 after all), but, if easy enough, should be Python2 compatible
