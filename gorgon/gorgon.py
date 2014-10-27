@@ -1,24 +1,44 @@
 '''
 Gorgon. A performant loadtest tool Python
 '''
-from multiprocessing import Process, JoinableQueue
+from threading import Thread
+from queue import PriorityQueue
+from random import randint, random
+from copy import deepcopy
 import requests
+from report import GorgonReport
+from uuid import uuid4
 
 
-def worker(queue):
+NUM_WORKERS = 4
+MIN_PRIO_ADJ_VALUE = NUM_WORKERS / 2
+MAX_PRIO_ADJ_VALUE = NUM_WORKERS + MIN_PRIO_ADJ_VALUE
+
+
+def prio_adjusted():
+    return randint(MIN_PRIO_ADJ_VALUE, MAX_PRIO_ADJ_VALUE) + random()
+
+
+def worker(gorgon):
 
     while True:
-        new_call = queue.get()
-        print('call {}'.format(new_call))
+        prio, new_call = gorgon.queue.get()
         callback = new_call.pop('callback', None)
-        result = Gorgon.http_call(new_call)
-        queue.task_done()
+        result = gorgon.http_call(new_call)
+        gorgon.queue.task_done()
 
         # Enter in the queue a possible callback
         if callback:
             new_profile = callback(result)
             if new_profile:
-                queue.put(new_profile)
+                try:
+                    new_prio = prio + prio_adjusted()
+                    item = new_prio, deepcopy(new_profile)
+                    gorgon.queue.put(item)
+                except TypeError:
+                    new_prio = prio + prio_adjusted()
+                    item = new_prio, deepcopy(new_profile)
+                    gorgon.queue.put(item)
 
 
 class Gorgon(object):
@@ -43,41 +63,46 @@ class Gorgon(object):
         self.profiles = profiles
 
         # TODO: Set up the number of workers
-        self.num_workers = 4
-        self.queue = JoinableQueue()
+        self.num_workers = NUM_WORKERS
+        self.queue = PriorityQueue()
 
     def start_pool(self):
         ''' Create a proper pool of workers '''
 
         for _ in range(self.num_workers):
-            p = Process(target=worker, args=(self.queue,))
+            p = Thread(target=worker, args=(self,))
             p.daemon = True
             p.start()
 
-    def insert(self, profile):
-        self.queue.put(profile)
+    def insert(self, priority, profile):
+        self.queue.put((priority, deepcopy(profile)))
 
-    def go(self, num_requests=None, time=None):
+    def go(self, num_requests=None, time_limit=None):
         ''' Start the tests defined on profiles '''
 
         # Create the initial queue of profiles
         for weight, profile in self.profiles.items():
-            for _ in range(weight * num_requests):
-                self.insert(profile)
+            for prio in range(weight * num_requests):
+                self.insert(prio, profile)
 
+        self.report = GorgonReport()
         self.start_pool()
         self.queue.join()
+        self.report.end()
+        self.report.print_report()
 
-    @classmethod
-    def http_call(cls, params):
+    def http_call(self, params):
         '''
         This function abstracts the access to http calls
         '''
+        call_id = uuid4()
         # TODO: If url is not present, log an error
         url = params.pop('url')
         method = params.pop('method')
-        requests_function = cls.MAP_METHODS[method]
+        requests_function = self.MAP_METHODS[method]
+        self.report.start_call(call_id, url)
         result = requests_function(url, **params)
+        self.report.end_call(call_id)
         result.previous_url = url
         result.previous_method = method
         return result

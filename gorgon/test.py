@@ -23,7 +23,7 @@ def test(url):
     }
 
     test = Gorgon(profiles)
-    test.go(num_requests=10)
+    test.go(num_requests=5000)
 
 
 if __name__ == '__main__':
