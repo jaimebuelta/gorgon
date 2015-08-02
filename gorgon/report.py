@@ -40,7 +40,7 @@ class GorgonReport(object):
         return self.formatted_time(self.total_time)
 
     def formatted_time(self, unformatted_time):
-        ms = int((unformatted_time % 1) * 100)
+        ms = int((unformatted_time % 1) * 1000)
         total_sec = int(unformatted_time)
         total_minutes = (total_sec // 60)
         hours = (total_minutes // 60)
@@ -71,14 +71,15 @@ class GorgonReport(object):
         minimum = min(times)
 
         if average == 0:
-            TEMPLATE = ('{number: 10}.  Inf! ops/sec. Avg time: {avg} '
+            TEMPLATE = ('{number: 10}  Inf! ops/sec. Avg time: {avg} '
                         'Max: {maximum} Min: {minimum}')
             opssec = None
         else:
-            TEMPLATE = ('{number: 10}.  {opssec: 7,} ops/sec. '
+            TEMPLATE = ('{number: 10}  {opssec: 7,} ops/sec. '
                         'Avg time: {avg} '
                         'Max: {maximum} Min: {minimum}')
-            opssec = int(1000 / average) #int(number / total_time)
+            total_time = end_time - start_time
+            opssec = int(number / total_time)
 
         report = TEMPLATE.format(number=number,
                                  opssec=opssec,
@@ -101,7 +102,7 @@ class GorgonReport(object):
         self.start_time = min(item['start_time'] for item in id_calls.values())
         self.end_time = max(item['end_time'] for item in id_calls.values())
 
-        REPORT_TEMPLATE = '{{name:{}}} {{report}}'.format(len_result)
+        REPORT_TEMPLATE = '{{name:>{}}} {{report}}'.format(len_result)
 
         group_calls = defaultdict(list)
         total_times = deque()
