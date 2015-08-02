@@ -1,30 +1,21 @@
 ''' Quick test to check functionality on Gorgon '''
 from gorgon import Gorgon
-from random import randint
+from time import sleep
+import requests
 
 
-def callback(previous_result):
-    if randint(0, 10) > 5:
-        return {
-            'url': 'http://localhost/',
-            'method': 'GET',
-        }
-
-    return None
+def operation(number):
+    result = 1 + ((number * 2) % 5)
+    sleep(0.002 * result)
+    result = requests.get('http://localhost')
+    return result.status_code
 
 
-def test(url):
-    profiles = {
-        1: {
-            'url': url,
-            'method': 'GET',
-            'callback': callback,
-        }
-    }
+def test():
 
-    test = Gorgon(profiles)
-    test.go(num_requests=5000)
+    test = Gorgon(operation)
+    test.go(num_operations=40000, num_processes=10, num_threads=10)
 
 
 if __name__ == '__main__':
-    test(url='http://localhost')
+    test()
