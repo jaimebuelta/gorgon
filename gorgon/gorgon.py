@@ -98,18 +98,31 @@ class Gorgon(object):
             self.report.append(report)
             num_reports += 1
 
+    def check_go(self):
+        '''
+        Check that the number of operations, processes and
+        threads adds up
+        '''
+        workers = self.num_threads * self.num_processes
+        if self.num_operations % workers != 0:
+            close = (self.num_operations // workers) + 1
+            suggestion = workers * close
+            msg = 'Incorrect number of operations, maybe you mean {}?'
+            raise Exception(msg.format(suggestion))
 
-    def go(self, num_operations=None, num_processes=1, num_threads=1,
+    def go(self, num_operations=1, num_processes=1, num_threads=1,
            random_delay=False):
         ''' Start the operations '''
-        # TODO: Check the number matches
-        # self.check_numbers()
         self.num_processes = num_processes
         self.num_threads = num_threads
+        self.num_operations = num_operations
+        self.check_go()
         self.ops_per_process = num_operations // num_processes
+        # Check the number matches
         self.random_delay = random_delay
 
-        self.report = GorgonReport()
+        self.report = GorgonReport(num_processes,
+                                   num_threads)
         self.start_pool()
 
         self.wait_until_finish()
