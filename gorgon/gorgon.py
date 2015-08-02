@@ -133,6 +133,9 @@ class Gorgon(object):
     def print_report(self):
         self.report.print_report()
 
+    def html_report(self):
+        self.report.html_report()
+
     def print_report_header(self):
         TMPL = 'Run operation {} times, with {} processes * {} threads'
         msg = TMPL.format(self.num_operations,

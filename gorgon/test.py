@@ -13,21 +13,23 @@ def operation_hash(number):
     for _ in range(4000):
         m.update('TEXT {}'.format(number).encode())
     digest = m.hexdigest()
-    return
+    return 'SUCCESS'
 
 
 def test():
-    NUM_OPS=400
+    NUM_OPS=4000
     # for i in range(NUM_OPS):
     #     operation(i)
 
-    test = Gorgon(operation_hash)
+    test = Gorgon(operation_http)
     test.go(num_operations=NUM_OPS, num_processes=1, num_threads=1)
     # test.print_report()
     test.go(num_operations=NUM_OPS, num_processes=2, num_threads=1)
     # test.print_report()
     test.go(num_operations=NUM_OPS, num_processes=4, num_threads=1)
-    test.print_report()
+    # test.print_report()
+    test.go(num_operations=NUM_OPS, num_processes=8, num_threads=1)
+    print(test.html_report())
 
 if __name__ == '__main__':
     test()
