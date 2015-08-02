@@ -24,11 +24,11 @@ def test():
     test = Gorgon(operation_http)
     test.go(num_operations=NUM_OPS, num_processes=1, num_threads=1)
     # test.print_report()
-    test.go(num_operations=NUM_OPS, num_processes=2, num_threads=1)
+    test.go(num_operations=NUM_OPS, num_processes=10, num_threads=10)
     # test.print_report()
-    test.go(num_operations=NUM_OPS, num_processes=4, num_threads=1)
+    test.go(num_operations=NUM_OPS, num_processes=20, num_threads=10)
     # test.print_report()
-    test.go(num_operations=NUM_OPS, num_processes=8, num_threads=1)
+    test.go(num_operations=NUM_OPS, num_processes=40, num_threads=50)
     print(test.html_report())
 
 if __name__ == '__main__':

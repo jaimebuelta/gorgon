@@ -261,7 +261,8 @@ class GorgonReport(object):
 
     def google_chart(self, titles, data):
         all_titles = ['Timestamp'] + titles
-        TITLE_TMPL = ', '.join("'{}'".format(t) for t in all_titles)
+        TITLE_TMPL = ', '.join('"{}"'.format(t.replace('"', "'"))
+                                             for t in all_titles)
         LINE_TMPL = ', '.join('{}' for t in all_titles)
         LINE_FORMAT = "[" + LINE_TMPL + "]"
         format_data = []
