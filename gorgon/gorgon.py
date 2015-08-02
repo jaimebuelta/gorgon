@@ -20,13 +20,14 @@ def run_ops_thread(operation, seed, num_ops, report, delay):
 
     for i in range(num_ops):
         number = seed + i
-        report.start_call(number)
+        call_id = uuid4()
+        report.start_call(call_id)
         try:
             result = operation(number)
         except Exception as exc:
-            result = str(exc)
+            result = exc
 
-        report.end_call(number, result)
+        report.end_call(call_id, str(result))
 
 
 def start_process(operation, seed, num_ops, num_threads, random_delay):
@@ -67,6 +68,7 @@ class Gorgon(object):
 
         self.operation = operation
         self.processes = []
+        self.report = GorgonReport()
 
     def start_pool(self):
         ''' Create a proper pool of workers '''
@@ -111,7 +113,7 @@ class Gorgon(object):
             raise Exception(msg.format(suggestion))
 
     def go(self, num_operations=1, num_processes=1, num_threads=1,
-           random_delay=False):
+           random_delay=False, silent=False):
         ''' Start the operations '''
         self.num_processes = num_processes
         self.num_threads = num_threads
@@ -121,13 +123,22 @@ class Gorgon(object):
         # Check the number matches
         self.random_delay = random_delay
 
-        self.report = GorgonReport(num_processes,
-                                   num_threads)
+        if not silent:
+            self.print_report_header()
+
         self.start_pool()
 
         self.wait_until_finish()
-        self.report.end()
+
+    def print_report(self):
         self.report.print_report()
+
+    def print_report_header(self):
+        TMPL = 'Run operation {} times, with {} processes * {} threads'
+        msg = TMPL.format(self.num_operations,
+                          self.num_processes,
+                          self.num_threads)
+        print(msg)
 
     def http_call(self, params):
         '''

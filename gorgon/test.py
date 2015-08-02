@@ -3,28 +3,31 @@ from gorgon import Gorgon
 import requests
 import hashlib
 
-def operation(number):
+def operation_http(number):
     result = requests.get('http://localhost')
     return result.status_code
 
 
-def operation(number):
+def operation_hash(number):
     m = hashlib.sha512()
     for _ in range(4000):
         m.update('TEXT {}'.format(number).encode())
     digest = m.hexdigest()
-    return digest[0]
+    return
 
 
 def test():
-    NUM_OPS=4
+    NUM_OPS=400
     # for i in range(NUM_OPS):
     #     operation(i)
 
-    test = Gorgon(operation)
-    test.go(num_operations=NUM_OPS, num_processes=2, num_threads=3,
-            random_delay=True)
-
+    test = Gorgon(operation_hash)
+    test.go(num_operations=NUM_OPS, num_processes=1, num_threads=1)
+    # test.print_report()
+    test.go(num_operations=NUM_OPS, num_processes=2, num_threads=1)
+    # test.print_report()
+    test.go(num_operations=NUM_OPS, num_processes=4, num_threads=1)
+    test.print_report()
 
 if __name__ == '__main__':
     test()

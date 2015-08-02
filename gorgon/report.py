@@ -4,13 +4,11 @@ from collections import deque, defaultdict
 
 class GorgonReport(object):
 
-    def __init__(self, num_processes=None, num_threads=None):
+    def __init__(self):
         self.start_time = None
         self.end_time = None
         self.calls = deque()
         self.full_report = []
-        self.num_processes = num_processes
-        self.num_threads = num_threads
 
     def end(self):
         # Create the report
@@ -90,7 +88,7 @@ class GorgonReport(object):
                                  minimum=self.formatted_time(minimum))
         return report
 
-    def create_report(self):
+    def print_report(self):
         self.full_report = []
 
         id_calls = defaultdict(dict)
@@ -134,16 +132,11 @@ class GorgonReport(object):
 
         self.num_operations = len(id_calls)
 
-    def print_report(self):
         # Not sure if we should show the start/end time
         # Maybe useful in long tests
         # print('Start time', self.formatted_start_time)
         # print('End time', self.formatted_end_time)
-        TMPL = 'Run operation {} times, with {} processes * {} threads'
-        msg = TMPL.format(self.num_operations,
-                          self.num_processes,
-                          self.num_threads)
-        print(msg)
+
         print('Total time', self.formatted_total_time)
         for row in self.full_report:
             print(row)
