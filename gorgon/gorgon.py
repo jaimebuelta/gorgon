@@ -1,5 +1,5 @@
 '''
-Gorgon. A simple process analysis tool Python
+Gorgon. A simple multiplier process analysis tool in Python
 '''
 from threading import Thread
 from multiprocessing import Process, Queue
@@ -142,11 +142,11 @@ class Gorgon(object):
 
         self.wait_until_finish()
 
-    def print_report(self):
-        self.report.print_report()
+    def small_report(self):
+        return self.report.small_report()
 
-    def html_report(self):
-        return self.report.html_report()
+    def html_graph_report(self):
+        return self.report.html_graph_report()
 
     def print_report_header(self):
         TMPL = 'Run operation {} times, with {} processes * {} threads'

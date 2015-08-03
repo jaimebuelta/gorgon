@@ -152,7 +152,7 @@ class GorgonReport(object):
 
         return group_calls
 
-    def print_report(self):
+    def small_report(self):
         self.full_report = []
 
         RESULT_HEADER = 'Result'
@@ -195,9 +195,9 @@ class GorgonReport(object):
         # print('Start time', self.formatted_start_time)
         # print('End time', self.formatted_end_time)
 
-        print('Total time', self.formatted_total_time)
-        for row in self.full_report:
-            print(row)
+        result = ['Total time: {}'.format(self.formatted_total_time)]
+        result.extend(self.full_report)
+        return '\n'.join(result)
 
     def start_call(self, uuid):
         info = {
@@ -214,7 +214,7 @@ class GorgonReport(object):
         }
         self.calls.append(info)
 
-    def html_report(self):
+    def html_graph_report(self):
         '''
         Generate data to be printed as a graph
         '''

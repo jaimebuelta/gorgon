@@ -13,11 +13,14 @@ def operation_hash(number):
     for _ in range(400):
         m.update('TEXT {}'.format(number).encode())
     digest = m.hexdigest()
-    return 'SUCCESS'
+    result = 'SUCCESS'
+    if number % 5 == 0:
+        result = 'FAIL'
+    return result
 
 
 def test():
-    NUM_OPS=4000
+    NUM_OPS=40000
     # for i in range(NUM_OPS):
     #     operation(i)
 
@@ -29,7 +32,8 @@ def test():
     test.go(num_operations=NUM_OPS, num_processes=20, num_threads=10)
     # test.print_report()
     test.go(num_operations=NUM_OPS, num_processes=40, num_threads=50)
-    print(test.html_report())
+    # print(test.small_report())
+    print(test.html_graph_report())
 
 if __name__ == '__main__':
     test()
