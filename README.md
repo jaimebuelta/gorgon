@@ -1,7 +1,7 @@
 Gorgon
 ======
 
-Gorgon. A simple multiplier process analysis tool in Python
+Gorgon. A simple multiplier task analysis tool in Python
 
 Gorgon is a framework to repeat a Python function N times, using multiprocessing and multithread to multiply the use.
 A report is presented then to show the results and time on the calls, in an aggregated manner.
@@ -11,7 +11,7 @@ Tsung or ab doesn't allow a lot of control over the returning values or flow con
 use the object id to do another request)
 In this regard, Gorgon aspired to be an intermediate tool between creating system tests and pure loadtesting.
 
-Then the aimed changed to be more a multiplier of a Python function, and collect stats, allowing to use any kind of task.
+Then the aimed changed to be more a multiplier of a Python function, and collect stats, allowing to use any kind of task, HTTP or not.
 
 Basic usage
 ===========
