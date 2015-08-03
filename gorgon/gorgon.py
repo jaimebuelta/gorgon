@@ -1,10 +1,14 @@
 '''
-Gorgon. A performant loadtest tool Python
+Gorgon. A simple process analysis tool Python
 '''
 from threading import Thread
 from multiprocessing import Process, Queue
 from copy import deepcopy
-from report import GorgonReport
+import sys
+if sys.version > '3':
+    from gorgon.report import GorgonReport
+else:
+    from report import GorgonReport
 from uuid import uuid4
 import inspect
 from time import sleep
