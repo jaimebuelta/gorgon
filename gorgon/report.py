@@ -272,7 +272,7 @@ class GorgonReport(object):
         # Remove the last comma
         format_data[-1] = format_data[-1].rstrip(',')
 
-        page = HTML_TEMPLATE.format(data=',\n'.join(format_data),
+        page = HTML_TEMPLATE.format(data=',\n          '.join(format_data),
                                     titles=TITLE_TMPL)
 
         return page

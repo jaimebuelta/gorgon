@@ -65,6 +65,14 @@ class Gorgon(object):
 
         except TypeError:
             raise Exception('A callable should be passed as operation')
+        except AttributeError:
+            # This is Python2
+            if not inspect.isfunction(operation):
+                raise Exception('A callable should be passed as operation')
+            if len(inspect.getargspec(operation).args) != 1:
+                raise Exception('A callable with one parameter '
+                                'should be passed as operation')
+
 
         self.operation = operation
         self.processes = []
