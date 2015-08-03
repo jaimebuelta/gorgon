@@ -10,7 +10,7 @@ def operation_http(number):
 
 def operation_hash(number):
     m = hashlib.sha512()
-    for _ in range(4000):
+    for _ in range(400):
         m.update('TEXT {}'.format(number).encode())
     digest = m.hexdigest()
     return 'SUCCESS'
@@ -21,7 +21,7 @@ def test():
     # for i in range(NUM_OPS):
     #     operation(i)
 
-    test = Gorgon(operation_http)
+    test = Gorgon(operation_hash)
     test.go(num_operations=NUM_OPS, num_processes=1, num_threads=1)
     # test.print_report()
     test.go(num_operations=NUM_OPS, num_processes=10, num_threads=10)
