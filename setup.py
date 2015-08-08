@@ -5,11 +5,11 @@ setup(
     name='gorgon',
     description='A simple multiplier task analysis tool in Python',
     license='MIT',
-    version='0.1',
+    version='0.2',
     author='Jaime Buelta',
     author_email='jaime.buelta@gmail.com',
     url='https://github.com/jaimebuelta/gorgon',
-    download_url='https://github.com/jaimebuelta/gorgon/tarball/0.1',
+    download_url='https://github.com/jaimebuelta/gorgon/tarball/0.2',
     platforms='Cross Platform',
     classifiers=[
         'Programming Language :: Python :: 2',
