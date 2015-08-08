@@ -47,7 +47,7 @@ Basic usage
 Cluster
 =======
 
-    By default, Gorgon uses the local computer to create all the tasks.  To distribute the load even more, and use several nodes, add machines to the cluster.
+  By default, Gorgon uses the local computer to create all the tasks.  To distribute the load even more, and use several nodes, add machines to the cluster.
 
         NUM_OPS = 4000
         test = Gorgon(operation_http)
@@ -60,11 +60,11 @@ Cluster
         test.go(num_operations=NUM_OPS, num_processes=2, num_threads=4)
         print(test.small_report())
 
-    Each of the nodes of the cluster should have installed Gorgon over the default python interpreter, unless
+  Each of the nodes of the cluster should have installed Gorgon over the default python interpreter, unless
 the parameter `python_interpreter` is set. Using the same Python interpreter in all the nodes and controller is recommended.
-    `paramiko` module is a dependency in cluster mode for the controller, but not for the nodes.
+  `paramiko` module is a dependency in cluster mode for the controller, but not for the nodes.
 
-    As a limitation, all the code to be tested needs to be contained on the `operation` function, including any imports for external modules. Remember to install all the dependencies for the code on the nodes.
+   As a limitation, all the code to be tested needs to be contained on the `operation` function, including any imports for external modules. Remember to install all the dependencies for the code on the nodes.
 
 
 More
