@@ -19,6 +19,7 @@ Basic usage
   Create the function that you want to run. This should accept a single parameter that will be a unique number.
 
     def operation_http(number):
+        import requests  # Imports inside your function is required for cluster mode
         result = requests.get('http://localhost')
         return result.status_code
 
@@ -43,15 +44,38 @@ Basic usage
  ![Graph](graph_example.png) 
 
 
+Cluster
+=======
+
+    By default, Gorgon uses the local computer to create all the tasks.  To distribute the load even more, and use several nodes, add machines to the cluster.
+
+        NUM_OPS = 4000
+        test = Gorgon(operation_http)
+        test.add_to_cluster('node1', 'ssh_user', SSH_KEY)
+        test.add_to_cluster('node2', 'ssh_user', SSH_KEY, python_interpreter='python3.3')
+        ...
+        # Run the test now as usual, over the cluster
+        test.go(num_operations=NUM_OPS, num_processes=1, num_threads=1)
+        test.go(num_operations=NUM_OPS, num_processes=2, num_threads=1)
+        test.go(num_operations=NUM_OPS, num_processes=2, num_threads=4)
+        print(test.small_report())
+
+    Each of the nodes of the cluster should have installed Gorgon over the default python interpreter, unless
+the parameter `python_interpreter` is set. Using the same Python interpreter in all the nodes and controller is recommended.
+    `paramiko` module is a dependency in cluster mode for the controller, but not for the nodes.
+
+    As a limitation, all the code to be tested needs to be contained on the `operation` function, including any imports for external modules. Remember to install all the dependencies for the code on the nodes.
+
+
 More
 ========
 
-This is extremelly early days, but a wishlist/roadmap/comments:
+Wishlist/roadmap/comments:
 
   - Good enough performance
   - Easy to use and integrate. A full (simple) test should be possible in less than 20 lines
   - Allow a test mode to check that all the calls are working as expected and debug.
-  - Use multithread/multiprocess
+  - Use multithread/multiprocess/cluster
     - Debug mode should not do this to allow easy debug.
   - Create an example/tool to read HTTP calls from a file as input
   - Good documentation
@@ -61,5 +85,6 @@ This is extremelly early days, but a wishlist/roadmap/comments:
     - Interactive reporting (progress bar and stats).
     - Allow partial reporting (in case a test is too long)
     - Better graphs
-  - Advanced feature. Use fabric (or other module) to work in multiple boxes environment
+  - Help with the setup of the cluster (installing dependencies, etc)
+    - Not sure about installing automatically Gorgon
   - The main development language is Python3 (hey, we are in 2015 after all), but, if easy possible, should be Python2 compatible. At the moment, it is

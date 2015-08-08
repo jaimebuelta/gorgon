@@ -267,7 +267,7 @@ class GorgonReport(object):
     def cluster_report(self):
         ''' Return the calls in JSON format to be transmitted '''
         id_calls, start_time, end_time = self._get_id_calls_start_end()
-        return json.dumps(id_calls.values())
+        return json.dumps([v for v in id_calls.values()])
 
     def google_chart(self, titles, data):
         all_titles = ['Timestamp'] + titles

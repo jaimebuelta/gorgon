@@ -16,7 +16,7 @@ from random import randint
 from collections import namedtuple
 import imp
 
-ClusterNode = namedtuple('ClusterNode', ('host', 'user', 'key'))
+ClusterNode = namedtuple('ClusterNode', ('host', 'user', 'key', 'interpreter'))
 
 QUEUE = Queue()
 RAND_DELAY_BASE = 0.001
@@ -119,7 +119,8 @@ class Gorgon(object):
             return None
         return len(self._cluster)
 
-    def add_to_cluster(self, host, ssh_user, ssh_key_filename):
+    def add_to_cluster(self, host, ssh_user, ssh_key_filename,
+                       python_interpreter=None):
         try:
             import paramiko
         except ImportError:
@@ -127,7 +128,8 @@ class Gorgon(object):
             raise
 
         node = ClusterNode(host=host, user=ssh_user,
-                           key=ssh_key_filename)
+                           key=ssh_key_filename,
+                           interpreter=python_interpreter)
         if not self._cluster:
             self._cluster = []
 
@@ -226,6 +228,7 @@ class Gorgon(object):
             client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             client.connect(node.host, username=node.user,
                            key_filename=node.key)
+            client.python_interpreter = node.interpreter
             clients.append(client)
 
         for client in clients:
@@ -235,15 +238,21 @@ class Gorgon(object):
             sftp.close()
 
         stdouts = []
+        stderrs = []
         base_seed = self.seed
         for index, client in enumerate(clients):
+            run_cmd = 'gorgon_cluster'
+            if client.python_interpreter:
+                TMPL =  '{} -m gorgon.cluster_run'
+                run_cmd =TMPL.format(client.python_interpreter)
             # Run the transmitted script remotely and show its output.
             # SSHClient.exec_command() returns the tuple (stdin,stdout,stderr)
-            EXEC_TMPL = ('gorgon_cluster {exec_file} {fname} {seed} {num_ops} '
+            EXEC_TMPL = ('{run_command} {exec_file} {fname} {seed} {num_ops} '
                          '{num_proc} {num_thread}'
                         )
             seed = base_seed + index * self.ops_per_node
-            exec_command = EXEC_TMPL.format(exec_file=tmp_file_name,
+            exec_command = EXEC_TMPL.format(run_command=run_cmd,
+                                            exec_file=tmp_file_name,
                                             fname=self._code_name,
                                             seed=seed,
                                             num_ops=self.ops_per_node,
@@ -252,6 +261,18 @@ class Gorgon(object):
 
             stdin, stdout, stderr = client.exec_command(exec_command)
             stdouts.append(stdout)
+            stderrs.append(stderr)
+
+        error = False
+        for stderr in stderrs:
+            for line in stderr:
+                error = True
+                print(line)
+
+        if error:
+            msg = ('Error while executing remote commands, please check '
+                   'commands')
+            raise Exception(msg)
 
         # Obtain the results through stdout
         for stdout in stdouts:

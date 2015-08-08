@@ -17,5 +17,6 @@ setup(
     ],
     keywords=['multiprocess', 'multithread', 'analysis'],
     scripts=['scripts/gorgon_cluster'],
+    install_requires=['paramiko'],
     packages=['gorgon'],
 )

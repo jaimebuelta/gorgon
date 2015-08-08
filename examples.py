@@ -50,7 +50,9 @@ def test():
     SSH_KEY = '/path/to/key'
     test = Gorgon(operation_hash)
     test.add_to_cluster('node1', 'ssh_user', SSH_KEY)
-    test.add_to_cluster('node2', 'ssh_user', SSH_KEY)
+    # You can configure the python interpreter to use on each box
+    test.add_to_cluster('node2', 'ssh_user', SSH_KEY,
+                        python_interpreter='/usr/bin/python3.4')
     # Run test as usual, now distributed over a cluster
     test.go(num_operations=NUM_OPS, num_processes=1, num_threads=1)
     test.go(num_operations=NUM_OPS, num_processes=10, num_threads=10)
