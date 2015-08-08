@@ -1,15 +1,15 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(
     # metadata
     name='gorgon',
     description='A simple multiplier task analysis tool in Python',
     license='MIT',
-    version='0.3',
+    version='0.3.1',
     author='Jaime Buelta',
     author_email='jaime.buelta@gmail.com',
     url='https://github.com/jaimebuelta/gorgon',
-    download_url='https://github.com/jaimebuelta/gorgon/tarball/0.3',
+    download_url='https://github.com/jaimebuelta/gorgon/tarball/0.3.1',
     platforms='Cross Platform',
     classifiers=[
         'Programming Language :: Python :: 2',
