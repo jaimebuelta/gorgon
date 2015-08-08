@@ -120,7 +120,7 @@ class Gorgon(object):
         return len(self._cluster)
 
     def add_to_cluster(self, host, ssh_user, ssh_key_filename,
-                       python_interpreter=None):
+                       python_interpreter='python'):
         try:
             import paramiko
         except ImportError:
@@ -241,10 +241,8 @@ class Gorgon(object):
         stderrs = []
         base_seed = self.seed
         for index, client in enumerate(clients):
-            run_cmd = 'gorgon_cluster'
-            if client.python_interpreter:
-                TMPL =  '{} -m gorgon.cluster_run'
-                run_cmd =TMPL.format(client.python_interpreter)
+            TMPL =  '{} -m gorgon.cluster_run'
+            run_cmd =TMPL.format(client.python_interpreter)
             # Run the transmitted script remotely and show its output.
             # SSHClient.exec_command() returns the tuple (stdin,stdout,stderr)
             EXEC_TMPL = ('{run_command} {exec_file} {fname} {seed} {num_ops} '
