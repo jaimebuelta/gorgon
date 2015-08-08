@@ -1,3 +1,4 @@
+import json
 from time import time
 from collections import deque, defaultdict
 
@@ -75,6 +76,10 @@ class GorgonReport(object):
         ''' Append a report to this one '''
         self.calls.extend(report.calls)
 
+    def append_cluster(self, report_line):
+        report = json.loads(report_line)
+        self.calls.extend(report)
+
     @property
     def formatted_total_time(self):
         return self.formatted_time(self.total_time)
@@ -133,7 +138,7 @@ class GorgonReport(object):
         start_time = self.calls[0]['start_time']
         end_time = 0
         for item in self.calls:
-            id_calls[item['call_id']].update(item)
+            id_calls[str(item['call_id'])].update(item)
             if 'start_time' in item:
                 start_time = min(start_time, item['start_time'])
             if 'end_time' in item:
@@ -258,6 +263,11 @@ class GorgonReport(object):
 
         page = self.google_chart(titles, formatted_data)
         return page
+
+    def cluster_report(self):
+        ''' Return the calls in JSON format to be transmitted '''
+        id_calls, start_time, end_time = self._get_id_calls_start_end()
+        return json.dumps(id_calls.values())
 
     def google_chart(self, titles, data):
         all_titles = ['Timestamp'] + titles
