@@ -1,6 +1,6 @@
 import json
 from time import time
-from collections import deque, defaultdict
+from collections import defaultdict
 
 HTML_TEMPLATE = '''
 <html>
@@ -48,7 +48,7 @@ class GorgonReport(object):
     def __init__(self):
         self.start_time = None
         self.end_time = None
-        self.calls = deque()
+        self.calls = []
         self.full_report = []
 
     def end(self):
