@@ -16,12 +16,26 @@ Then the aimed changed to be more a multiplier of a Python function, and collect
 Basic usage
 ===========
 
+  Take a look at `examples.py` for quick view of the usage.
+
   Create the function that you want to run. This should accept a single parameter that will be a unique number.
 
     def operation_http(number):
         import requests  # Imports inside your function is required for cluster mode
         result = requests.get('http://localhost')
         return result.status_code
+
+    def operation_hash(number):
+        import hashlib
+        # This is just an example of a computationally expensive task
+        m = hashlib.sha512()
+        for _ in range(4000):
+            m.update('TEXT {}'.format(number).encode())
+        digest = m.hexdigest()
+        result = 'SUCCESS'
+        if number % 5 == 0:
+            result = 'FAIL'
+        return result
 
   Then create a Gorgon with that operation and generate one or more runs. Each run will run the function `num_operations` times.
 
@@ -39,7 +53,7 @@ Basic usage
     Result      16000      512 ops/sec. Avg time:  725ms Max:  3s  621ms Min:   2ms
        200      16000      512 ops/sec. Avg time:  725ms Max:  3s  621ms Min:   2ms
 
-  Example of graphs. Just print the result of `html_report` as HTML and take a look with a browser (it uses [Google Chart API](https://developers.google.com/chart/))
+  Example of graphs. Just dump the result of `html_report` as HTML to a file and take a look with a browser (it uses [Google Chart API](https://developers.google.com/chart/))
 
  ![Graph](graph_example.png) 
 
