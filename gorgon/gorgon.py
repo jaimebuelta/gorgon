@@ -85,6 +85,7 @@ def run_cluster():
                num_threads=num_threads, seed=seed, silent=True)
     print(harness.cluster_report())
 
+
 class Gorgon(object):
 
     def __init__(self, operation):
@@ -104,7 +105,6 @@ class Gorgon(object):
                 raise Exception('A callable with one parameter '
                                 'should be passed as operation')
 
-
         self.operation = operation
         self.processes = []
         self.report = GorgonReport()
@@ -123,6 +123,7 @@ class Gorgon(object):
                        python_interpreter='python'):
         try:
             import paramiko
+            paramiko.__version__
         except ImportError:
             print('paramiko is needed for cluster support')
             raise
@@ -241,13 +242,12 @@ class Gorgon(object):
         stderrs = []
         base_seed = self.seed
         for index, client in enumerate(clients):
-            TMPL =  '{} -m gorgon.cluster_run'
-            run_cmd =TMPL.format(client.python_interpreter)
+            TMPL = '{} -m gorgon.cluster_run'
+            run_cmd = TMPL.format(client.python_interpreter)
             # Run the transmitted script remotely and show its output.
             # SSHClient.exec_command() returns the tuple (stdin,stdout,stderr)
             EXEC_TMPL = ('{run_command} {exec_file} {fname} {seed} {num_ops} '
-                         '{num_proc} {num_thread}'
-                        )
+                         '{num_proc} {num_thread}')
             seed = base_seed + index * self.ops_per_node
             exec_command = EXEC_TMPL.format(run_command=run_cmd,
                                             exec_file=tmp_file_name,
