@@ -81,6 +81,30 @@ the parameter `python_interpreter` is set. Using the same Python interpreter in 
    As a limitation, all the code to be tested needs to be contained on the `operation` function, including any imports for external modules. Remember to install all the dependencies for the code on the nodes.
 
 
+Subcalls
+=======
+
+  If more precision is required on parts of the call, a second parameter may be added to record parts of the operation
+
+    def operation_http(number, gorgon):
+        import requests
+        with gorgon.measurement('http call 1'):
+            result = requests.get('http://localhost')
+
+        with gorgon.measurement('http call 2'):
+            result = requests.get('http://localhost')
+
+        return result.status_code
+
+  This will show on the small_report a line per result with the subcall times
+
+    Total time:  3s  111ms
+          Result        500      160 ops/sec. Avg time:   6ms Max:  68ms Min:   5ms
+             200        500      160 ops/sec. Avg time:   6ms Max:  68ms Min:   5ms
+     http call 2<        500      160 ops/sec. Avg time:   3ms Max:   4ms Min:   2ms
+     http call 1<        500      160 ops/sec. Avg time:   3ms Max:  16ms Min:   2ms
+
+
 More
 ========
 

@@ -1,12 +1,25 @@
 ''' Quick test to check functionality on Gorgon '''
 from gorgon import Gorgon
 
+
 def operation_http(number):
     # Imports needs to be inside the function for cluster functionality
     import requests
     result = requests.get('http://localhost')
     # The result could be used to perform more operations, making complex
     # workflows
+    return result.status_code
+
+
+def operation_http2(number, gorgon):
+    # A second parameter can be used for submeasurements
+    import requests
+    with gorgon.measurement('http call 1'):
+        result = requests.get('http://localhost')
+
+    with gorgon.measurement('http call 2'):
+        result = requests.get('http://localhost')
+
     return result.status_code
 
 
@@ -25,7 +38,7 @@ def operation_hash(number):
 
 
 def test():
-    NUM_OPS=40000
+    NUM_OPS = 40000
 
     # Multiple goes can be used for ramping up
     test = Gorgon(operation_hash)
@@ -44,7 +57,6 @@ def test():
     test.go(num_operations=NUM_OPS, num_processes=40, num_threads=50)
     print(test.small_report())
     print(test.html_graph_report())
-
 
     # Create a distributed test over a cluster defining your cluster
     SSH_KEY = '/path/to/key'
