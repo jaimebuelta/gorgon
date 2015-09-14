@@ -22,7 +22,7 @@ QUEUE = Queue()
 RAND_DELAY_BASE = 0.001
 
 
-def run_ops_thread(operation, seed, num_ops, report, delay):
+def run_ops_thread(operation, seed, num_ops, report, delay, gorgon):
     if delay:
         sleep(delay)
 
@@ -31,14 +31,18 @@ def run_ops_thread(operation, seed, num_ops, report, delay):
         call_id = str(uuid4())
         report.start_call(call_id)
         try:
-            result = operation(number)
+            if gorgon.add_gorgon_to_call:
+                result = operation(number, report.context_ready(call_id))
+            else:
+                result = operation(number)
         except Exception as exc:
             result = exc
 
         report.end_call(call_id, str(result))
 
 
-def start_process(operation, seed, num_ops, num_threads, random_delay):
+def start_process(operation, seed, num_ops, num_threads, random_delay,
+                  gorgon):
     report = GorgonReport()
     num_ops_thread = num_ops // num_threads
     threads = []
@@ -48,7 +52,7 @@ def start_process(operation, seed, num_ops, num_threads, random_delay):
         if random_delay:
             delay = randint(0, num_threads) * RAND_DELAY_BASE
         args = (operation, thread_seed, num_ops_thread, report,
-                delay)
+                delay, gorgon)
         thread = Thread(target=run_ops_thread, args=args)
         thread.start()
         threads.append(thread)
@@ -101,9 +105,13 @@ class Gorgon(object):
             # This is Python2
             if not inspect.isfunction(operation):
                 raise Exception('A callable should be passed as operation')
-            if len(inspect.getargspec(operation).args) != 1:
-                raise Exception('A callable with one parameter '
+            if len(inspect.getargspec(operation).args) not in (1, 2):
+                raise Exception('A callable with one or two parameters '
                                 'should be passed as operation')
+
+        self.add_gorgon_to_call = False
+        if len(inspect.getargspec(operation).args) == 2:
+            self.add_gorgon_to_call = True
 
         self.operation = operation
         self.processes = []
@@ -154,9 +162,10 @@ class Gorgon(object):
                     self.seed + (i * self.ops_per_process),
                     self.ops_per_process,
                     self.num_threads,
-                    self.random_delay)
+                    self.random_delay,
+                    self)
             process = Process(target=start_process,
-                            args=args)
+                              args=args)
             process.start()
             self.processes.append(process)
 

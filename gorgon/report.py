@@ -33,6 +33,7 @@ HTML_TEMPLATE = '''
 
 '''
 
+
 def average(data):
     total_sum = 0
     total_len = 0
@@ -166,7 +167,10 @@ class GorgonReport(object):
         self.start_time = start_time
         self.end_time = end_time
         for call_id, item in id_calls.items():
-            len_result = max(len_result, len(str(item['result'])))
+            generator = (k for k in item.keys()
+                         if k == 'result' or k.startswith('time_'))
+            for key in generator:
+                len_result = max(len_result, len(str(item[key])))
 
         REPORT_TEMPLATE = '{{name:>{}}} {{report}}'.format(len_result)
 
@@ -192,6 +196,20 @@ class GorgonReport(object):
                                                                    start_time,
                                                                    end_time)))
             self.full_report.append(row)
+
+            # append the subcalls
+
+            # Check subcalls first
+            subcalls = {key.lstrip('time_') for key in item.keys()
+                          if key.startswith('time_')
+                        for item in calls}
+            for subcall in subcalls:
+                key_name = 'time_{}'.format(subcall)
+                times = [item[key_name] for item in calls if key_name in item]
+                report = self.times_report(times, start_time, end_time)
+                name = '{}<'.format(subcall)
+                row = " " + REPORT_TEMPLATE.format(name=name, report=report)
+                self.full_report.append(row)
 
         self.num_operations = len(id_calls)
 
@@ -219,6 +237,13 @@ class GorgonReport(object):
         }
         self.calls.append(info)
 
+    def context_call(self, uuid, name, int_time):
+        info = {
+            'call_id': uuid,
+            'time_{}'.format(name): int_time,
+        }
+        self.calls.append(info)
+
     def html_graph_report(self):
         '''
         Generate data to be printed as a graph
@@ -229,14 +254,14 @@ class GorgonReport(object):
         group_calls = self._group_by(id_calls, 'result')
 
         # Group end calls in the same second
-        by_second = defaultdict(lambda : defaultdict(list))
+        by_second = defaultdict(lambda: defaultdict(list))
         for title, results in group_calls.items():
             for result in results:
                 timestamp = int(result['end_time'])
                 by_second[title][timestamp].append(result)
 
         # Get info per second
-        by_second_info = defaultdict(lambda : defaultdict(list))
+        by_second_info = defaultdict(lambda: defaultdict(list))
         for title, times in by_second.items():
             for timestamp, data in times.items():
                 # in ms
@@ -254,7 +279,7 @@ class GorgonReport(object):
 
         formatted_data = []
         for timestamp, tinfo in sorted(by_second_info.items(),
-                                       key=lambda x:x[0]):
+                                       key=lambda x: x[0]):
             data = [int(timestamp - start_time)]
             formatted_ops = [tinfo.get(title, {}).get('operations', 0)
                              for title in titles]
@@ -286,3 +311,41 @@ class GorgonReport(object):
                                     titles=TITLE_TMPL)
 
         return page
+
+    def context_ready(self, uuid):
+        return Context(self, uuid)
+
+
+class GorgonMeasurement(object):
+
+    def __init__(self, name, context):
+        self.name = name
+        self.context = context
+
+    def __enter__(self):
+        self.start_time = time()
+
+    def __exit__(self, type, value, traceback):
+        self.end_time = time()
+
+        # Set a new call for the
+        total_time = self.end_time - self.start_time
+        self.context.report.context_call(self.context.uuid, self.name,
+                                         total_time)
+
+
+class Context(object):
+
+    def __init__(self, report, uuid):
+        self.report = report
+        self.uuid = uuid
+
+    def measurement(self, name):
+        '''
+        This context allows to do:
+            with gorgon.measurement('name'):
+                subcall
+
+        that will be measured
+        '''
+        return GorgonMeasurement(name, self)
